@@ -1,7 +1,4 @@
-import pygame
-from copy import deepcopy
 from utils.config import WHITE,BLACK,POSI_INFI,NEGA_INFI
-
 from algorithms.algorithms import get_all_moves, simulate_move, show_path
 
 def minimax(path_num, current_board, color, depth, game):
@@ -9,7 +6,8 @@ def minimax(path_num, current_board, color, depth, game):
         return current_board.evaluate(game.my_turn),current_board
     
     best_move = None
-    #颜色转换
+
+    # convert turn (color)
     if color == WHITE:
         other_color = BLACK
     else:
@@ -18,10 +16,10 @@ def minimax(path_num, current_board, color, depth, game):
         max_score = NEGA_INFI
         for move in get_all_moves(path_num, current_board, color, game):
             score = minimax(path_num, move, other_color, depth - 1, game)[0]
-            max_score = max(score,max_score)
+            max_score = max(score, max_score)
             if max_score == score:
                 best_move = move
-        return max_score , best_move
+        return max_score, best_move
     else:
         min_score = POSI_INFI
         for move in get_all_moves(path_num, current_board, color, game):
@@ -29,29 +27,32 @@ def minimax(path_num, current_board, color, depth, game):
             min_score = min(score,min_score)
             if min_score == score:
                 best_move = move
-        return min_score , best_move
-
+        return min_score, best_move
 
 
 def negamax(path_num, current_board, color, depth, game):
     '''
-      negamax(负极值算法)是对 minimax(极大极小算法)做出的小改进
-      通过max(a,b) = - min(-a,-b)思想将极大、极小情况统一，精简代码量
+    negamax : small improvement to minimax
+    max(a, b) = -min(-a, -b)
+    convert min, max into the same situation, easy for coding
     '''
-    #当深度为0或者已经搜索除有一方获胜，没有继续搜索的必要，返回
+
+    # depth = 0 or someone wins
     if depth == 0 or current_board.winner() != None:
         return current_board.evaluate(game.my_turn), current_board
     
     best_move = None
     best = NEGA_INFI
-    #颜色转换
+
+    # convert turn (color)
     if color == WHITE:
         other_color = BLACK
     else:
         other_color = WHITE
     for move in get_all_moves(path_num, current_board, color, game):
         score = -negamax(path_num, move, other_color, depth - 1, game)[0]
-        #选择最优解
+        
+        # select best move 
         best = max(score, best)
         if best == score:
             best_move = move
@@ -60,12 +61,14 @@ def negamax(path_num, current_board, color, depth, game):
     
 def alpha_beta_pruning(path_num, current_board, color, alpha, beta, depth, game):
     '''
-     基于nagamax的 alpha-beta剪枝
+    alpha-beta pruning (based on negamax)
     '''
-    #当深度为0或者已经搜索出有一方获胜，没有继续搜索的必要，返回
+
+    # depth = 0 or someone wins
     if depth == 0 or current_board.winner() != None:
         return current_board.evaluate(game.my_turn),current_board  
-    #颜色转换
+    
+    # convert turn (color)
     if color == WHITE:
         other_color = BLACK
     else:
@@ -80,6 +83,7 @@ def alpha_beta_pruning(path_num, current_board, color, alpha, beta, depth, game)
             if score > alpha:
                 alpha = score
                 best_move = move
-        return alpha,best_move
-    else:#无可移动的路径时返回负无穷
-        return 1+NEGA_INFI,best_move
+        return alpha, best_move
+    else:
+        # no place to move -> -inf
+        return 1 + NEGA_INFI, best_move
