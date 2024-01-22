@@ -1,5 +1,5 @@
 import pygame
-from config import ROWS,COLS,SIZE,BLACK,WHITE,WIDTH,HEIGHT,BLUE,GREEN,GREY1,GREY2,WHITE_CROWN,BLACK_CROWN
+from utils.config import ROWS, COLS, SIZE, BLACK, WHITE, WIDTH, HEIGHT, BLUE, GREEN, GREY1, GREY2, WHITE_CROWN, BLACK_CROWN
 
 #棋子类
 class Piece:
@@ -269,14 +269,14 @@ class Game:
     def draw_valid_moves(self, moves):
         for move in moves:
             row, col = move
-            pygame.draw.circle(self.win, BLUE, (col * SIZE + SIZE//2, row * SIZE + SIZE//2), 15)
+            pygame.draw.circle(self.win, BLUE, (col * SIZE + SIZE // 2, row * SIZE + SIZE // 2), 15)
     
     #显示当前走棋方
     def draw_turn(self):
         if self.turn == WHITE:
-            turn_text = 'Turn：WHITE'
+            turn_text = 'Turn : WHITE'
         else:
-            turn_text = 'Turn：BLACK'
+            turn_text = 'Turn : BLACK'
         font = pygame.font.SysFont('simhei', 30)
         turn = font.render(turn_text, True, (0,0,0))
         self.win.blit(turn, (30, HEIGHT - 35))
@@ -284,9 +284,9 @@ class Game:
     #显示对抗搜索算法已经搜索过的节点数
     def draw_path_num(self,num = 0):
         if self.turn == self.my_turn:
-            text = 'Path Num：-'
+            text = 'Path Num : -'
         else:
-            text = 'Path Num：' + str(num)
+            text = 'Path Num : ' + str(num)
         font = pygame.font.SysFont('simhei', 30)
         text_num = font.render(text, True, (0,0,0))
         self.win.blit(text_num, (WIDTH/2 + 30, HEIGHT - 35))

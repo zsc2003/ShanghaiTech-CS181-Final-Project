@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import pygame
-import crown
+import images
 
 #正负无穷
 POSI_INFI = 2147483647
@@ -20,8 +20,5 @@ ROWS , COLS = 8 , 8         #棋盘的行列数
 SIZE = 80                   #棋格宽度
 
 #皇冠图片
-WHITE_CROWN = pygame.transform.scale(pygame.image.load('crown/white.jpg'), (44, 25))
-BLACK_CROWN = pygame.transform.scale(pygame.image.load('crown/black.jpg'), (44, 25))
-
-
-
+WHITE_CROWN = pygame.transform.scale(pygame.image.load('images/white.jpg'), (44, 25))
+BLACK_CROWN = pygame.transform.scale(pygame.image.load('images/black.jpg'), (44, 25))

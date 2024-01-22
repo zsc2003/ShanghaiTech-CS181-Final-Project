@@ -1,8 +1,11 @@
 import pygame
 import pygame_menu
-from config import WIDTH , HEIGHT,SIZE,BLACK,WHITE,POSI_INFI,NEGA_INFI
-from draught import Game
-from AI import minimax,negamax,alpha_beta_pruning
+from utils.config import WIDTH ,HEIGHT, SIZE, BLACK, WHITE, POSI_INFI, NEGA_INFI
+from utils.draught import Game
+# from algorithms.AI import  negamax, alpha_beta_pruning
+from algorithms.minimax import minimax, negamax, alpha_beta_pruning
+
+
 depth = 4   #搜索深度,默认搜索4层
 ai_turn = BLACK   #AI棋子的颜色
 algorithm = 1     #搜索算法,1为negamax;2为alpha-bate pruning
@@ -39,9 +42,9 @@ def run_game():
     is_run = True
     #初始化游戏类
     if ai_turn == BLACK:
-       game = Game(win,WHITE)
+       game = Game(window,WHITE)
     else:
-        game = Game(win,BLACK)
+        game = Game(window,BLACK)
     
     while is_run:
         for event in pygame.event.get():
@@ -74,29 +77,32 @@ def run_game():
         
         game.update()
 
-pygame.init()
-
-# print(pygame.font.get_fonts())
-#初始化主窗口
-win = pygame.display.set_mode((WIDTH,HEIGHT))
-#初始化菜单
-font = pygame_menu.font.FONT_NEVIS
-menu = pygame_menu.Menu('Welcome',
-                        400,
-                        300,
-                        theme=pygame_menu.themes.THEME_SOLARIZED)
-
-menu.add.selector('Algorithm :', [('random',1)],
-                  onchange=select_algorithm, font_name=font)
-menu.add.selector('My Turn :', [('WHITE',1), ('BLACK',2)],
-                  onchange=select_turn, font_name=font)
-menu.add.text_input('Depth :', default= 4, onchange=set_depth, font_name=font)
-menu.add.button('Play', run_game, font_name=font)
-menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
-
-menu.mainloop(win)
-run_game()
 
 
 
- 
+
+if __name__ == '__main__':
+    pygame.init()
+
+    window = pygame.display.set_mode((WIDTH,HEIGHT))
+
+    # initialize menu
+    font = pygame_menu.font.FONT_NEVIS
+    menu = pygame_menu.Menu('Welcome',
+                            400,
+                            300,
+                            theme=pygame_menu.themes.THEME_SOLARIZED)
+
+    menu.add.selector('Algorithm :', [('random',1)],
+                      onchange=select_algorithm, font_name=font)
+    menu.add.selector('My Turn :', [('WHITE',1), ('BLACK',2)],
+                      onchange=select_turn, font_name=font)
+    menu.add.selector('Depth :', [(f'{i}', i) for i in range(1, 11)],
+                      onchange=select_turn, font_name=font, default=2)
+    # menu.add.text_input('Depth :', default= 4, onchange=set_depth, font_name=font)
+    menu.add.button('Play', run_game, font_name=font)
+    menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
+
+    menu.mainloop(window)
+
+    run_game()
