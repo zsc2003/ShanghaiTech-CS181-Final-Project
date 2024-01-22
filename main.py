@@ -91,7 +91,8 @@ if __name__ == '__main__':
     menu = pygame_menu.Menu('Welcome',
                             400,
                             300,
-                            theme=pygame_menu.themes.THEME_SOLARIZED)
+                            theme=pygame_menu.themes.THEME_SOLARIZED,
+                            )
 
     menu.add.selector('Algorithm :', [('random',1)],
                       onchange=select_algorithm, font_name=font)
@@ -99,7 +100,7 @@ if __name__ == '__main__':
                       onchange=select_turn, font_name=font)
     menu.add.selector('Depth :', [(f'{i}', i) for i in range(1, 11)],
                       onchange=select_turn, font_name=font, default=2)
-    # menu.add.text_input('Depth :', default= 4, onchange=set_depth, font_name=font)
+
     menu.add.button('Play', run_game, font_name=font)
     menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
 

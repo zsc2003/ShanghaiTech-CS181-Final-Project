@@ -14,11 +14,11 @@ GREY1 = (209,203,180)
 GREY2 = (194,194,194)
 GREEN = (114,139,114)
 
-#棋盘信息
+# chess board info
 WIDTH , HEIGHT = 640 , 680  #界面的宽高
 ROWS , COLS = 8 , 8         #棋盘的行列数
 SIZE = 80                   #棋格宽度
 
-#皇冠图片
+# images for crowns
 WHITE_CROWN = pygame.transform.scale(pygame.image.load('images/white.jpg'), (44, 25))
 BLACK_CROWN = pygame.transform.scale(pygame.image.load('images/black.jpg'), (44, 25))

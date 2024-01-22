@@ -4,7 +4,7 @@ from utils.config import WHITE,BLACK,POSI_INFI,NEGA_INFI
 
 from algorithms.algorithms import get_all_moves, simulate_move, show_path
 
-def minimax(self, path_num, current_board, color, depth, game):
+def minimax(path_num, current_board, color, depth, game):
     if depth == 0 or current_board.winner():
         return current_board.evaluate(game.my_turn),current_board
     
@@ -33,14 +33,14 @@ def minimax(self, path_num, current_board, color, depth, game):
 
 
 
-def negamax(path_num,current_board,color,depth,game):
+def negamax(path_num, current_board, color, depth, game):
     '''
       negamax(负极值算法)是对 minimax(极大极小算法)做出的小改进
       通过max(a,b) = - min(-a,-b)思想将极大、极小情况统一，精简代码量
     '''
     #当深度为0或者已经搜索除有一方获胜，没有继续搜索的必要，返回
     if depth == 0 or current_board.winner() != None:
-        return current_board.evaluate(game.my_turn),current_board
+        return current_board.evaluate(game.my_turn), current_board
     
     best_move = None
     best = NEGA_INFI
