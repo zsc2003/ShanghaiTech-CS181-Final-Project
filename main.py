@@ -5,7 +5,7 @@ from utils.draught_game import Game
 
 from algorithms.minimax import minimax, negamax, alpha_beta_pruning
 from algorithms.random import random_algorithm
-# from algorithms.reforcement_learning import reforcement_learning
+# from algorithms.reinforcement_learning import reinforcement_learning
 
 menu = None
 
@@ -88,8 +88,8 @@ def run_game():
                     score, new_board = random_algorithm([0], game.board, ai_turn, depth, game)
                 elif algorithm == 2: # search
                     score, new_board = alpha_beta_pruning([0], game.board, ai_turn, NEGA_INFI, POSI_INFI, depth, game)              
-                elif algorithm == 3: # reforcement learning
-                    raise ValueError("reforcement learning is under construction")
+                elif algorithm == 3: # reinforcement learning
+                    raise ValueError("reinforcement learning is under construction")
                 elif algorithm == 4: # MCTS
                     raise ValueError("MCTS is under construction")
                 else:
@@ -99,6 +99,9 @@ def run_game():
                     game.ai_move(new_board)
             else:
                 game.get_moves()
+                
+                # TODO add AI vs AI
+
 
             # judge if anyone wins
             if game.board.winner() != None:
@@ -147,7 +150,7 @@ if __name__ == '__main__':
 
     algorithm_list = [('random', 1),
                       ('search', 2),
-                      ('reforcement', 3),
+                      ('reinforcement', 3),
                       ('MCTS', 4),
                      ]
 
