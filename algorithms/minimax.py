@@ -1,9 +1,10 @@
-from utils.config import WHITE,BLACK,POSI_INFI,NEGA_INFI
+from utils.config import WHITE, BLACK, POSI_INFI, NEGA_INFI
+from utils.config import NEGA_INFI, POSI_INFI
 from algorithms.algorithms import get_all_moves, simulate_move, show_path
 
 def minimax(path_num, current_board, color, depth, game):
     if depth == 0 or current_board.winner():
-        return current_board.evaluate(game.my_turn),current_board
+        return current_board.evaluate(game.my_turn), current_board
     
     best_move = None
 
@@ -66,7 +67,7 @@ def alpha_beta_pruning(path_num, current_board, color, alpha, beta, depth, game)
 
     # depth = 0 or someone wins
     if depth == 0 or current_board.winner() != None:
-        return current_board.evaluate(game.my_turn),current_board  
+        return current_board.evaluate(game.my_turn), current_board
     
     # convert turn (color)
     if color == WHITE:
@@ -79,7 +80,7 @@ def alpha_beta_pruning(path_num, current_board, color, alpha, beta, depth, game)
         for move in moves:
             score = -alpha_beta_pruning(path_num, move, other_color, -beta, -alpha, depth - 1, game)[0]
             if score >= beta:
-                return beta,best_move
+                return beta, best_move
             if score > alpha:
                 alpha = score
                 best_move = move

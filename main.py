@@ -4,13 +4,14 @@ from utils.config import WIDTH ,HEIGHT, SIZE, BLACK, WHITE, POSI_INFI, NEGA_INFI
 from utils.draught_game import Game
 
 from algorithms.minimax import minimax, negamax, alpha_beta_pruning
+from algorithms.random import random_algorithm
 # from algorithms.reforcement_learning import reforcement_learning
 
 menu = None
 
 depth = 3         # search depth
 ai_turn = BLACK   # the color for the ai piece
-color = 2
+color = 1
 algorithm = 1     # search algorithm
 p1 = 1
 p1_algorithm = 5
@@ -84,9 +85,7 @@ def run_game():
             # judge the turn
             if game.turn == ai_turn:
                 if algorithm == 1: # random
-                    pass
-                    # current it is negamax
-                    score, new_board = negamax([0], game.board, ai_turn, depth, game)
+                    score, new_board = random_algorithm([0], game.board, ai_turn, depth, game)
                 elif algorithm == 2: # search
                     score, new_board = alpha_beta_pruning([0], game.board, ai_turn, NEGA_INFI, POSI_INFI, depth, game)              
                 elif algorithm == 3: # reforcement learning
