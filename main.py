@@ -6,29 +6,63 @@ from utils.draught_game import Game
 from algorithms.minimax import minimax, negamax, alpha_beta_pruning
 # from algorithms.reforcement_learning import reforcement_learning
 
+menu = None
+
 depth = 3         # search depth
 ai_turn = BLACK   # the color for the ai piece
+color = 2
 algorithm = 1     # search algorithm
+p1 = 1
+p1_algorithm = 5
 
 # select algorithm for AI
 def select_algorithm(value, index):
     global algorithm
     algorithm = index
+    # print(index)
+
+
+# select algorithm for p1-AI
+def select_p1_algorithm(value, index):
+    global p1_algorithm, p1
+    if p1 == 1: # human
+        p1_algorithm = 5
+    elif p1 == 2: # AI
+        if index == 5:
+            index = 1
+        p1_algorithm = index
+    else:
+        raise ValueError("Unconstructed player")
+
 
 # select the color for the player
 def select_turn(value, index):
-    global ai_turn
+    global ai_turn, color
+    color = index
     if index == 2:
         ai_turn = WHITE
     else:
         ai_turn = BLACK
+    # print(index)
 
 
 # select the depth for searching
 def select_depth(value, index):
     global depth
     depth = index
+    # print(index)
 
+
+def select_p1(value, index):
+    global p1, p1_algorithm
+    p1 = index
+
+    if index == 1: # p1 is human
+        p1_algorithm = 5
+    elif index == 2: # p1 is AI
+        p1_algorithm = 1        
+    else:
+        raise ValueError("Unconstructed player")
 
 # run draught
 def run_game():
@@ -81,6 +115,24 @@ def run_game():
         game.update()
 
 
+def add_selectors():
+    global menu, algorithm, color, depth, p1
+    menu.add.selector('Algorithm : ', algorithm_list,
+                      onchange=select_algorithm, font_name=font, default=algorithm - 1)
+    menu.add.selector('My Turn : ', [('WHITE',1), ('BLACK',2)],
+                      onchange=select_turn, font_name=font, default=color - 1)
+    menu.add.selector('Depth : ', [(f'{i}', i) for i in range(1, 11)],
+                      onchange=select_depth, font_name=font, default=depth - 1)
+
+    menu.add.selector("Player1 : ", [('human', 1), ['AI', 2]],
+                      onchange=select_p1, font_name=font, default=p1 - 1)
+    menu.add.selector("Player1 Algorithm: ", algorithm_list + [('--', 5)],
+                      onchange=select_p1_algorithm, font_name=font, default=p1_algorithm - 1)
+
+def add_buttons():
+    menu.add.button('Play', run_game, font_name=font)
+    menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
+
 if __name__ == '__main__':
     pygame.init()
 
@@ -89,8 +141,8 @@ if __name__ == '__main__':
     # initialize menu
     font = pygame_menu.font.FONT_NEVIS
     menu = pygame_menu.Menu('Welcome',
+                            500,
                             400,
-                            300,
                             theme=pygame_menu.themes.THEME_SOLARIZED,
                             )
 
@@ -100,15 +152,8 @@ if __name__ == '__main__':
                       ('MCTS', 4),
                      ]
 
-    menu.add.selector('Algorithm : ', algorithm_list,
-                      onchange=select_algorithm, font_name=font)
-    menu.add.selector('My Turn : ', [('WHITE',1), ('BLACK',2)],
-                      onchange=select_turn, font_name=font)
-    menu.add.selector('Depth : ', [(f'{i}', i) for i in range(1, 11)],
-                      onchange=select_depth, font_name=font, default=2)
-
-    menu.add.button('Play', run_game, font_name=font)
-    menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
+    add_selectors()
+    add_buttons()
 
     menu.mainloop(window)
 
