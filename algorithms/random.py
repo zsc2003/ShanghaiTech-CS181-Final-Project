@@ -1,4 +1,4 @@
-from algorithms.algorithms import get_all_moves, simulate_move, show_path
+from algorithms.algorithms import *
 import random
 
 def random_algorithm(path_num, current_board, color, depth, game):
