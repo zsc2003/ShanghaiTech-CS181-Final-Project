@@ -13,8 +13,8 @@ menu = None
 
 depth = 3         # search depth
 ai_turn = BLACK   # the color for the ai piece
-color = 1
 algorithm = 1     # search algorithm
+color = 1
 p1 = 1
 p1_algorithm = 4
 
@@ -158,6 +158,12 @@ def add_buttons():
     menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
 
 if __name__ == '__main__':
+    RUN_APPROXIMATE_Q_LEARNING = True
+    if RUN_APPROXIMATE_Q_LEARNING:
+        from approximate_q_learning import approximate_q_learning
+        approximate_q_learning()
+        exit()
+
     pygame.init()
 
     window = pygame.display.set_mode((WIDTH,HEIGHT))
