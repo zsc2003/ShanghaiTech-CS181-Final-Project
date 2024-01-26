@@ -4,7 +4,7 @@ from utils.config import WIDTH ,HEIGHT, SIZE, BLACK, WHITE, POSI_INFI, NEGA_INFI
 from utils.draught_game import Game
 
 from algorithms.minimax import minimax, alpha_beta_pruning
-from algorithms.random import random_algorithm
+from algorithms.random_agent import random_algorithm
 # from algorithms.MCTS import mcts_agent
 from algorithms.mcts import mcts_agent
 # from algorithms.reinforcement_learning import reinforcement_learning
@@ -16,7 +16,7 @@ ai_turn = BLACK   # the color for the ai piece
 color = 1
 algorithm = 1     # search algorithm
 p1 = 1
-p1_algorithm = 5
+p1_algorithm = 4
 
 # select algorithm for AI
 def select_algorithm(value, index):
@@ -29,9 +29,9 @@ def select_algorithm(value, index):
 def select_p1_algorithm(value, index):
     global p1_algorithm, p1
     if p1 == 1: # human
-        p1_algorithm = 5
+        p1_algorithm = 4
     elif p1 == 2: # AI
-        if index == 5:
+        if index == 4:
             index = 1
         p1_algorithm = index
     else:
@@ -61,7 +61,7 @@ def select_p1(value, index):
     p1 = index
 
     if index == 1: # p1 is human
-        p1_algorithm = 5
+        p1_algorithm = 4
     elif index == 2: # p1 is AI
         p1_algorithm = 1        
     else:
@@ -93,9 +93,7 @@ def run_game():
                     score, new_board = random_algorithm([0], game.board, ai_turn, depth, game)
                 elif algorithm == 2: # search
                     score, new_board = alpha_beta_pruning([0], game.board, ai_turn, NEGA_INFI, POSI_INFI, depth, game)              
-                elif algorithm == 3: # reinforcement learning
-                    raise ValueError("reinforcement learning is under construction")
-                elif algorithm == 4: # MCTS
+                elif algorithm == 3: # MCTS
                     # print("Before board: ", game.board)
                     # new_board = mcts_class.step(game.board, 20)
                     if game.turn == WHITE:
@@ -152,7 +150,7 @@ def add_selectors():
 
     menu.add.selector("Player1 : ", [('human', 1), ['AI', 2]],
                       onchange=select_p1, font_name=font, default=p1 - 1)
-    menu.add.selector("Player1 Algorithm: ", algorithm_list + [('--', 5)],
+    menu.add.selector("Player1 Algorithm: ", algorithm_list + [('--', 4)],
                       onchange=select_p1_algorithm, font_name=font, default=p1_algorithm - 1)
 
 def add_buttons():
@@ -174,8 +172,7 @@ if __name__ == '__main__':
 
     algorithm_list = [('random', 1),
                       ('search', 2),
-                      ('reinforcement', 3),
-                      ('MCTS', 4),
+                      ('MCTS', 3),
                      ]
 
     add_selectors()

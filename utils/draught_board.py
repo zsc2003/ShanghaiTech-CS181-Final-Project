@@ -2,6 +2,10 @@ import pygame
 from utils.config import ROWS, COLS, SIZE, BLACK, WHITE, WIDTH, HEIGHT, BLUE, GREEN, GREY1, GREY2, WHITE_CROWN, BLACK_CROWN
 from utils.config import dir_move, dir_jump 
 from utils.draught_piece import Piece
+import sys
+sys.path.append(r'C:\Users\wangquan\Desktop\workspace\cs181\ShanghaiTech-CS181-Final-Project\algorithm')
+from algorithms.neural_feature import feature_network
+import torch
 
 class Board:
     def __init__(self):
@@ -11,6 +15,13 @@ class Board:
         self.is_jump     = False                 # whether a piece have to eat another piece
         self.max_eat     = 0                     # the maximum pieces that can be eaten
         self.init_pieces()
+        self.use_feature_network = False
+        self.neural_weight = 0.1
+        
+        if self.use_feature_network:
+            self.feature_network = feature_network()
+            self.feature_network.cuda()
+            self.feature_network.load_state_dict(torch.load(r'C:\Users\wangquan\Desktop\workspace\cs181\ShanghaiTech-CS181-Final-Project\algorithms\ckpt\feature_net_epoch_20.pth'))
     
     def init_pieces(self):
         for row in range(ROWS):
@@ -202,9 +213,37 @@ class Board:
             all_valid_moves = valid_moves
         return all_valid_moves
 
-    # evaluate score function!!!!!!!!
+    # evaluate score function
     def evaluate(self, color):
         score = self.white_left - self.black_left + (self.white_kings * 0.5 - self.black_kings * 0.5)
+        if color == WHITE:
+            return -score
+        else:
+            return score
+        
+    def evaluate_neural(self, color):
+        neural_board = torch.zeros((1, 1, 8, 8)).cuda()
+        for i in range(8):
+            for j in range(8):
+                if self.pieces[i][j] == 0:
+                    neural_board[0][0][i][j] = 0
+                elif self.pieces[i][j].color == WHITE:
+                    if self.pieces[i][j].is_king:
+                        neural_board[0][0][i][j] = 3
+                    else:
+                        neural_board[0][0][i][j] = 1
+                else:
+                    if self.pieces[i][j].is_king:
+                        neural_board[0][0][i][j] = 4
+                    else:
+                        neural_board[0][0][i][j] = 2
+        neural_board = neural_board.float()
+        neural_turn = torch.tensor([1 if color == WHITE else 2]).float().cuda()
+        neural_score = self.feature_network(neural_board, neural_turn)
+        # to numpy
+        neural_score = neural_score.cpu().detach().numpy()[0][0]
+        score = self.white_left - self.black_left + (self.white_kings * 0.5 - self.black_kings * 0.5)
+        score += self.neural_weight * neural_score
         if color == WHITE:
             return -score
         else:
