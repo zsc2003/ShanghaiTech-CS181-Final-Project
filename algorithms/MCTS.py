@@ -9,11 +9,11 @@ class mcts_node():
     def __init__(self, color = WHITE):
         self.parent = None
         self.children = []
-        self.possible_moves = None
+        self.next_moves = None
         self.turn = color
         self.board = None
-        self.playouts = 0
-        self.wins = 0
+        self.N = 0
+        self.Q = 0
         
     def reverse_node(self):
         if self.turn == WHITE:
@@ -23,7 +23,7 @@ class mcts_node():
         else:
             raise ValueError("Error turn in reverse_node")
         
-    def get_moves(self):
+    def get_next(self):
         # get all moves
         valid_moves = self.board.get_valid_moves(self.turn)
         child_nodes = []
@@ -43,8 +43,8 @@ class mcts_node():
                     child_node = mcts_node()
                     child_node.turn = self.reverse_node()
                     child_node.parent = self
-                    child_node.playouts = 0
-                    child_node.wins = 0
+                    child_node.N = 0
+                    child_node.Q = 0
                     child_node.board = child_board
                     # append
                     child_nodes.append(child_node)
@@ -54,13 +54,6 @@ class mcts_node():
         # return
         return child_nodes
 
-# compute ucb1
-def ucb1(node):
-    deterministic_value = node.wins/node.playouts
-    constant_c = 1 / math.sqrt(2)
-    explore_value = constant_c * math.sqrt(2 * math.log(node.parent.playouts)/node.playouts)
-    return deterministic_value + explore_value
-
 # uct algorithm
 def uct(node):
     best_score = float('-inf')
@@ -68,119 +61,76 @@ def uct(node):
     # loop all node in the children
     for child_node in node.children:
         # compute the ucb value
-        score = ucb1(child_node)
+        ucb1_v1 = child_node.Q / child_node.N
+        ucb1_v2 = (1 / math.sqrt(2)) * math.sqrt(2 * math.log(child_node.parent.N) / child_node.N)
+        score = ucb1_v1 + ucb1_v2
         if score > best_score:
             best_score = score
             best_node = child_node
     return best_node
 
 def selection(node):
-    current_node = node
-    # test if child is none
-    if current_node.possible_moves == None:
-        possible_children = current_node.get_moves()
-        current_node.possible_moves = possible_children
-    else:
-        possible_children = current_node.possible_moves
-    
-    # while still all child node are explored
-    while (len(current_node.children) == len(possible_children)):
-        # get best child
-        best_child = uct(current_node)
-        current_node = best_child
-        if current_node.possible_moves == None:
-            possible_children = current_node.get_moves()
-            current_node.possible_moves = possible_children
-        else:
-            possible_children = current_node.possible_moves
-            
-        # if not explored
-        if (len(possible_children) == 0):
-            return current_node, possible_children
-    
-    return current_node, possible_children
+    while node.children and all(child.N > 0 for child in node.next_moves):
+        if node.next_moves is None:
+            node.next_moves = node.get_next()
 
-def expansion(parent, possible_children):
-    # if leaf node
-    if len(possible_children) == 0:
+        node = uct(node)
+
+    return node
+
+def expansion(parent):
+    # if no child
+    if not parent.next_moves:
         return parent
-    # find the move
-    for move in possible_children:
-        move_found = False
-        # check if move explored
-        for child in parent.children: 
-            # may have problem...
-            if move.board.pieces == child.board.pieces:
-                move_found = True
-                break
-        # not found
-        if not move_found:
-            if move.possible_moves == None:
-                moves = move.get_moves()
-                move.possible_moves = moves
-            else:
-                moves = move.possible_moves
-            if (len(moves) == 0):
-                turn = parent.turn
-            else:
-                turn = parent.reverse_node()
-            move.turn = turn
+
+    # if child not in children
+    for move in parent.next_moves:
+        if all(move.board.pieces != child.board.pieces for child in parent.children):
+            move.next_moves = move.get_next() if move.next_moves is None else move.next_moves
+            move.turn = parent.reverse_node() if move.next_moves else parent.turn
             parent.children.append(move)
             return move
+
     return None
 
 def simulation(node):
-    move = 0
-    while node.board.winner() is None:
-        # limit the loop
-        if move >= 20:
+    for _ in range(20):
+        if node.board.winner() is not None:
             break
-        valid_moves = node.get_moves()
-        if valid_moves:
-            node = random.choice(valid_moves)
-        move += 1
-        
-    if node.board.board_score() > 0:
-        return True
-    else:
-        return False
+
+        valid_moves = node.get_next()
+        node = random.choice(valid_moves) if valid_moves else node
+
+    return node.board.board_mcts_eval() > 0
     
 def backpropagation(node, winner):
-    while node is not None:
-        node.playouts += 1
-        if node.turn and not winner:
-            node.wins += 1
-        if not node.turn and winner:
-            node.wins += 1
+    while node:
+        node.N += 1
+        if (node.turn and not winner) or (not node.turn and winner):
+            node.Q += 1
         node = node.parent
         
 class mcts_agent():
     def __init__(self, board, color):
         self.root = mcts_node(color)
         self.root.board = copy.deepcopy(board)
-        self.root.possible_moves = self.root.get_moves()
+        self.root.next_moves = self.root.get_next()
         
     def step(self, board, iterations):
         self.root.board = copy.deepcopy(board)
-        self.root.possible_moves = self.root.get_moves()
+        self.root.next_moves = self.root.get_next()
         self.root.children = []
         
+        # simulation
         for _ in range(iterations):
-            current_node, possible_children = selection(self.root)
-            # print("currend possible_children: ", possible_children)
-            # print("currend_node children: ", current_node.children)
-            new_node = expansion(current_node, possible_children)
-            # print("node children: ", new_node.children)
+            # perform mcts 4 steps
+            current_node = selection(self.root)
+            new_node = expansion(current_node) or current_node
             white_win = simulation(new_node)
             backpropagation(new_node, white_win)
 
-        # print("After back root children: ", self.root.children)
-
         # find the most explored
-        max_playouts = 0
-        best_child = None
-        for child in self.root.children:
-            if child.playouts > max_playouts:
-                max_playouts = child.playouts
-                best_child = child
+        if not self.root.children:
+            return None
+        best_child = max(self.root.children, key=lambda child: child.N)
         return best_child.board

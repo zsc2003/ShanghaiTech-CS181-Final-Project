@@ -250,6 +250,6 @@ class Board:
             return score
         
     # evaluate the board score without consider turn
-    def board_score(self):
+    def board_mcts_eval(self):
         score = self.white_left + 2 * self.white_kings - self.black_left - 2 * self.black_kings
         return score
