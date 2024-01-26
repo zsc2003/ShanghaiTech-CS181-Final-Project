@@ -1,6 +1,7 @@
 import pygame
 import pygame_menu
-from utils.config import WIDTH, HEIGHT, SIZE, BLACK, WHITE, POSI_INFI, NEGA_INFI
+import sys
+from utils.config import *
 from utils.draught_game import Game
 from utils.draught_board import Board
 from algorithms.minimax import minimax

@@ -158,6 +158,12 @@ def add_buttons():
     menu.add.button('Quit', pygame_menu.events.EXIT, font_name=font)
 
 if __name__ == '__main__':
+    RUN_APPROXIMATE_Q_LEARNING = True
+    if RUN_APPROXIMATE_Q_LEARNING:
+        from approximate_q_learning import approximate_q_learning
+        approximate_q_learning()
+        exit()
+
     pygame.init()
 
     window = pygame.display.set_mode((WIDTH,HEIGHT))
