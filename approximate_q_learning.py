@@ -17,7 +17,7 @@ algorithm = 1
 alpha = 0.5
 discount_factor = 0.9
 
-def q_func(board:Board, board2:Board):
+def q_func(board : Board, board2 : Board):
     # wHITE
     f1 = 0
     if(board.white_left == 0):
@@ -39,7 +39,17 @@ def q_func(board:Board, board2:Board):
 
     f6 = board2.distance()
 
-    return f1, f2, f3, f4, f5, f6
+    if board.use_feature_network:
+        f7 = board.evaluate_neural(WHITE)
+    else:
+        f7 = 0
+
+    if board2.use_feature_network:
+        f8 = board2.evaluate_neural(BLACK)
+    else:
+        f8 = 0
+
+    return f1, f2, f3, f4, f5, f6, f7, f8
 
 def train():
     # training approximate Q-learning
@@ -51,7 +61,7 @@ def train():
     # epsilon = 0.3
     
     # finetune
-    w1, w2, w3, w4, w5, w6 = 9.86152761377497, 0.023915788615273777, 0.48000919549243837, 9.9674619481094, -0.11002902967481094, 0.1583690398285995
+    w1, w2, w3, w4, w5, w6, w7, w8 = 9.86152761377497, 0.023915788615273777, 0.48000919549243837, 9.9674619481094, -0.11002902967481094, 0.158369039828599, 3.46109195499481, 4.96745273781
     epsilon = 0.05
 
     print("================= start training =================")
@@ -70,7 +80,7 @@ def train():
             # write w1, w2, ... , w6 to log.txt
             with open("log.txt", "a") as f:
                 f.write(f"iter : {i}\n")
-                f.write(f"w1 = {w1}, w2 = {w2}, w3 = {w3}, w4 = {w4}, w5 = {w5}, w6 = {w6}\n")
+                f.write(f"w1 = {w1}, w2 = {w2}, w3 = {w3}, w4 = {w4}, w5 = {w5}, w6 = {w6}, w7 = {w7}, w8 = {w8}\n")
         
         game = Game(window, WHITE)
         is_run = True
@@ -104,8 +114,8 @@ def train():
 
                     # if((game.board, new_board) not in qvalue_grid.keys()):
                     #     qvalue_grid[(game.board, new_board)] = 0
-                    f11, f12, f13, f14, f15, f16 = q_func(game.board, new_board)
-                    q1 = w1 * f11 + w2 * f12 + w3 * f13 + w4 * f14 + w5 * f15 + w6 * f16
+                    f11, f12, f13, f14, f15, f16, f17, f18 = q_func(game.board, new_board)
+                    q1 = w1 * f11 + w2 * f12 + w3 * f13 + w4 * f14 + w5 * f15 + w6 * f16 + w7 * f17 + w8 * f18
                     #start difference 
                     max_for_next_step = -99999
                     reward = 0
@@ -114,8 +124,8 @@ def train():
                         new_board_1 = valid_moves_1[num_board_1]
                         # if((new_board, new_board_1) not in qvalue_grid.keys()):
                         #     qvalue_grid[(new_board, new_board_1)] = 0
-                        f21, f22, f23, f24, f25, f26 = q_func(new_board, new_board_1)
-                        q2 = w1 * f21 + w2 * f22 + w3 * f23 + w4 * f24 + w5 * f25 + w6 * f26
+                        f21, f22, f23, f24, f25, f26, f27, f28 = q_func(new_board, new_board_1)
+                        q2 = w1 * f21 + w2 * f22 + w3 * f23 + w4 * f24 + w5 * f25 + w6 * f26 + w7 * f27 + w8 * f28
                         if(q2 > max_for_next_step):
                             max_for_next_step = q2
                             reward = new_board.black_left - new_board_1.black_left
@@ -131,6 +141,8 @@ def train():
                     w4 = w4 + lr * ((reward + discount_factor * q2) - q1) * f14
                     w5 = w5 + lr * ((reward + discount_factor * q2) - q1) * f15
                     w6 = w6 + lr * ((reward + discount_factor * q2) - q1) * f16
+                    w7 = w7 + lr * ((reward + discount_factor * q2) - q1) * f17
+                    w8 = w8 + lr * ((reward + discount_factor * q2) - q1) * f18
                     
                     # qvalue_grid[(game.board, new_board)] = (1 - alpha) * qvalue_grid[(game.board, new_board)] + alpha * (-(new_board.evaluate_dist(WHITE) - game.board.evaluate_dist(WHITE)) + discount_factor * max_for_next_step)
 
@@ -390,7 +402,7 @@ if __name__ == '__main__':
 
     train()
     print(" ============== training finish ============== ")
-    
+
     print(" ============== start evaluate ============== ")
     evaluate()
     print(" ============== finished evaluate ============== ")

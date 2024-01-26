@@ -13,8 +13,8 @@ menu = None
 
 depth = 3         # search depth
 ai_turn = BLACK   # the color for the ai piece
-color = 1
 algorithm = 1     # search algorithm
+color = 1
 p1 = 1
 p1_algorithm = 4
 

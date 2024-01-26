@@ -273,7 +273,6 @@ class Board:
         if(self.black_left == 0):   
             return 10000
 
-
         for i in range(8):
             for j in range(8):
                 if(self.pieces[i][j] != 0 and self.pieces[i][j].get_color() == WHITE):
