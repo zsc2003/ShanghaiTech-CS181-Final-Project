@@ -30,35 +30,6 @@ def minimax(path_num, current_board, color, depth, game):
                 best_move = move
         return min_score, best_move
 
-
-def negamax(path_num, current_board, color, depth, game):
-    '''
-    negamax : small improvement to minimax
-    max(a, b) = -min(-a, -b)
-    convert min, max into the same situation, easy for coding
-    '''
-
-    # depth = 0 or someone wins
-    if depth == 0 or current_board.winner() != None:
-        return current_board.evaluate(game.my_turn), current_board
-    
-    best_move = None
-    best = NEGA_INFI
-
-    # convert turn (color)
-    if color == WHITE:
-        other_color = BLACK
-    else:
-        other_color = WHITE
-    for move in get_all_moves(path_num, current_board, color, game):
-        score = -negamax(path_num, move, other_color, depth - 1, game)[0]
-        
-        # select best move 
-        best = max(score, best)
-        if best == score:
-            best_move = move
-
-    return best, best_move
     
 def alpha_beta_pruning(path_num, current_board, color, alpha, beta, depth, game):
     '''
