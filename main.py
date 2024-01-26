@@ -3,7 +3,7 @@ import pygame_menu
 from utils.config import WIDTH ,HEIGHT, SIZE, BLACK, WHITE, POSI_INFI, NEGA_INFI
 from utils.draught_game import Game
 
-from algorithms.minimax import minimax, negamax, alpha_beta_pruning
+from algorithms.minimax import minimax, alpha_beta_pruning
 from algorithms.random import random_algorithm
 # from algorithms.reinforcement_learning import reinforcement_learning
 
