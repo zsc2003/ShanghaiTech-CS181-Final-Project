@@ -12,7 +12,7 @@ class Board:
         self.max_eat     = 0                     # the maximum pieces that can be eaten
         self.init_pieces()
     
-    def init_pieces(self): 
+    def init_pieces(self):
         for row in range(ROWS):
             self.pieces.append([])
             for col in range(COLS):
@@ -209,3 +209,8 @@ class Board:
             return -score
         else:
             return score
+        
+    # evaluate the board score without consider turn
+    def board_score(self):
+        score = self.white_left + 2 * self.white_kings - self.black_left - 2 * self.black_kings
+        return score

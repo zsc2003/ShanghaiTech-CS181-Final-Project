@@ -5,6 +5,8 @@ from utils.draught_game import Game
 
 from algorithms.minimax import minimax, alpha_beta_pruning
 from algorithms.random import random_algorithm
+# from algorithms.MCTS import mcts_agent
+from algorithms.mcts_new import mcts_agent
 # from algorithms.reinforcement_learning import reinforcement_learning
 
 menu = None
@@ -75,6 +77,9 @@ def run_game():
        game = Game(window, WHITE)
     else:
         game = Game(window, BLACK)
+        
+    mcts_class_white = mcts_agent(game.board, WHITE)
+    mcts_class_black = mcts_agent(game.board, BLACK)
     
     while is_run:
         for event in pygame.event.get():
@@ -91,17 +96,36 @@ def run_game():
                 elif algorithm == 3: # reinforcement learning
                     raise ValueError("reinforcement learning is under construction")
                 elif algorithm == 4: # MCTS
-                    raise ValueError("MCTS is under construction")
+                    # print("Before board: ", game.board)
+                    # new_board = mcts_class.step(game.board, 20)
+                    if game.turn == WHITE:
+                        new_board = mcts_class_white.step(game.board, 20)
+                    else:
+                        new_board = mcts_class_black.step(game.board, 20)
+                    # print("After board: ", new_board)
+                    
                 else:
                     raise ValueError("Unconstructed algorithm")
                 
                 if new_board:
                     game.ai_move(new_board)
             else:
-                game.get_moves()
                 
                 # TODO add AI vs AI
-
+                if p1 == 1: # human
+                    game.get_moves()
+                elif p1 == 2: # AI
+                    if p1_algorithm == 2: # alpha beta pruning
+                        score, new_board = alpha_beta_pruning([0], game.board, WHITE, NEGA_INFI, POSI_INFI, depth, game)
+                    elif p1_algorithm == 3:
+                        if game.turn == WHITE:
+                            new_board = mcts_class_white.step(game.board, 20)
+                        else:
+                            new_board = mcts_class_black.step(game.board, 20)
+                    else:
+                        score, new_board = random_algorithm([0], game.board, WHITE, depth, game)
+                    if new_board:
+                        game.ai_move(new_board)
 
             # judge if anyone wins
             if game.board.winner() != None:
