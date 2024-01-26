@@ -18,8 +18,8 @@ ROWS, COLS = 8, 8         # size for the chess board
 SIZE = 80                 # width of a single chess borad piece
 
 # images for crowns
-WHITE_CROWN = pygame.transform.scale(pygame.image.load('images/white.jpg'), (44, 25))
-BLACK_CROWN = pygame.transform.scale(pygame.image.load('images/black.jpg'), (44, 25))
+WHITE_CROWN = pygame.transform.scale(pygame.image.load('images/crown_new.png'), (44, 25))
+BLACK_CROWN = pygame.transform.scale(pygame.image.load('images/crown_new.png'), (44, 25))
 
 # movements for pieces
 dir_move = [[-1,-1], [-1,1], [1,-1], [1,1]]
