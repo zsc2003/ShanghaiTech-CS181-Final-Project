@@ -1,195 +1,186 @@
-# mcts algothrim
 from algorithms.algorithms import *
 import numpy as np
 import random, pickle
 import copy
 import math
 from utils.config import *
-         
-class Node:
-    def __init__(self):
-        self.valid_actions = []
+
+class mcts_node():
+    def __init__(self, color = WHITE):
         self.parent = None
-        self.state = None
-        self.children = {}
-        self.visit_times = 0
-        self.value = 0
-        # white or black
-        self.color = None
+        self.children = []
+        self.possible_moves = None
+        self.turn = color
+        self.board = None
+        self.playouts = 0
+        self.wins = 0
         
-    def next_color(self):
-        if self.color == WHITE:
+    def reverse_node(self):
+        if self.turn == WHITE:
             return BLACK
-        if self.color == BLACK:
+        elif self.turn == BLACK:
             return WHITE
-        raise ValueError("Error Color")
-    
-    def next_state(self, action):
-        for piece, move in action.items():
-            temp_board = deepcopy(self.state)
-            temp_piece = temp_board.pieces[piece.row][piece.col]
-            new_board = simulate_move(temp_piece, move[0],temp_board, move[1])
-        return new_board
+        else:
+            raise ValueError("Error turn in reverse_node")
         
-    def full_expand(self):
-        return len(self.valid_actions) == len(self.children)
-    
-    def set_all_valid_action(self):
-        if self.state == None:
-            raise ValueError("Unconstructed node")
-        else:
-            # print(11111111)
-            # print(self.state)
-            # self.valid_actions = get_all_moves([0], self.state, self.color, game)
-            # print("Color: ", self.color)
-            self.valid_actions = self.state.get_valid_moves(self.color)
-            # print("Board: ", self.state.pieces)
-            # for piece in self.state.pieces:
-            #     for piece2 in piece:
-            #         if piece2 != 0:
-            #             print(piece2.color)
-            #         else:
-            #             print(piece2)
-            #     print('\n')
-            # print("\n")
-            # print(self.state.white_left)
-            # print(self.state.black_left)
-            
-            # print("valid actions: ", self.valid_actions)
-            # print("\n")
-            # print("color: ", self.color)
-            
-    def compute_value(self, state, color):
-        if state == None:
-            raise ValueError("Unconstructed node")
-        else:
-            self.value = state.evaluate(color)
-            
-    def expand(self):
-        next_state, action = self.randomChooseNextState()
-        next_node = Node()
-        next_node.state = next_state
-        next_node.color = self.next_color()
-        next_node.set_all_valid_action()
-        self.children[next_state] = (next_node, action)
-        next_node.parent = self
-        return next_node
-    
-    def randomExpand(self):
-        # print(self.valid_actions)
-        random_piece = random.choice(list(self.valid_actions.keys()))
-        random_action = random.choice(list(self.valid_actions[random_piece].keys()))
-        action = {random_piece: [random_action, self.valid_actions[random_piece][random_action]]}        
-        next_state = self.next_state(action)
-        if next_state not in self.children.keys():
-            next_node = Node()
-            next_node.state = next_state
-            next_node.color = self.next_color()
-            next_node.set_all_valid_action()
-            next_node.compute_value(next_state, self.next_color())
-            self.children[next_state] = (next_node, action)
-            next_node.parent = self
-        else:
-            next_node = self.children[next_state][0]
-        return next_node
-    
-    def randomChooseNextState(self):
-        if len(self.valid_actions) == 0:
-            raise ValueError("Empty valid action")
-        else:
-            random_piece = random.choice(list(self.valid_actions.keys()))
-            random_action = random.choice(list(self.valid_actions[random_piece].keys()))
-            action = {random_piece: [random_action, self.valid_actions[random_piece][random_action]]}        
-            next_state = self.next_state(action)
-        return next_state, action
-    
-    def bestChild(self, is_exploration):
-        if is_exploration:
-            c = 1 / math.sqrt(2.0)
-        else:
-            c = 0.0
-        UCB_list = np.array([self.calUCB(c, child) for child, _ in self.children.values()])
-        # print("children ", self.children.values())
-        best_score = np.amax(UCB_list)
-        best_idx = np.argwhere(np.isclose(UCB_list, best_score)).squeeze()
-        if best_idx.size > 1:
-            best_choice = np.random.choice(best_idx)
-        else:
-            best_choice = np.argmax(UCB_list)
-        best_child, best_action = list(self.children.values())[best_choice]
-        if not is_exploration:
-            print(f"choose child node with visit_time = {best_child.visit_times}")
-        return best_child, best_action
-    
-    # def calRewardFromState(self, direction):
-    #     winner = self.state.getWinner()
-    #     # if self.state.findPiece(Piece.RGeneral) is not [] and self.state.findPiece(Piece.BGeneral) is not []:
-    #     if winner == direction:
-    #         return 1
-    #     elif winner == Player.reverse(direction):
-    #         return -1
-    #     return 0
+    def get_moves(self):
+        # get all moves
+        valid_moves = self.board.get_valid_moves(self.turn)
+        child_nodes = []
+        # loop all valid moves and generate new board
+        for piece in self.board.get_all_pieces(self.turn):
+            # simulate move
+            if piece in valid_moves:
+                moves = valid_moves[piece]
+                for move, skipped in moves.items():
+                    child_board = copy.deepcopy(self.board)
+                    child_piece = child_board.pieces[piece.row][piece.col]
+                    child_board.move_piece(child_piece, move[0], move[1])
+                    if skipped:
+                        child_board.remove_pieces(skipped)
+                    
+                    # generate new node
+                    child_node = mcts_node()
+                    child_node.turn = self.reverse_node()
+                    child_node.parent = self
+                    child_node.playouts = 0
+                    child_node.wins = 0
+                    child_node.board = child_board
+                    # append
+                    child_nodes.append(child_node)
+        
+        # print(child_nodes)
+        
+        # return
+        return child_nodes
 
-    def calUCB(self, c, child):
-        # UCB = quality_value / visit_time + c * sqrt(2 * ln(parent_visit_time) / visit_time)
-        if child.visit_times == 0:
-            return 0.0
-        UCB = child.value / child.visit_times + c * math.sqrt(2 * math.log(self.visit_times) / child.visit_times)
-        return UCB
-    
-def mcts_agent(current_board, color, game):
-    root = Node()
-    new_state = current_board
-    root.state = new_state
-    root.color = color
-    root.compute_value(root.state, color)
-    root.set_all_valid_action()
-    tie = 0
-    for i in range(3):
-        expanded_node = MCTS_Policy(root, color)
-        expanded_node, reward = default(expanded_node, tie)
-        backup(expanded_node, reward, color)
-    root, action = root.bestChild(False)
-    new_board = simulate_move(list(action.keys())[0], action[list(action.keys())[0]][0], current_board, action[list(action.keys())[0]][1])
-    return new_board
+# compute ucb1
+def ucb1(node):
+    deterministic_value = node.wins/node.playouts
+    constant_c = 1 / math.sqrt(2)
+    explore_value = constant_c * math.sqrt(2 * math.log(node.parent.playouts)/node.playouts)
+    return deterministic_value + explore_value
 
-def MCTS_Policy(root, color):
-    if root.state.winner() == None:
-        if root.full_expand():
-            root, _ = root.bestChild(True)
-        else:
-            root = root.expand()
-            root.compute_value(root.state, color)
-            return root
-    return root
+# uct algorithm
+def uct(node):
+    best_score = float('-inf')
+    best_node = None
+    # loop all node in the children
+    for child_node in node.children:
+        # compute the ucb value
+        score = ucb1(child_node)
+        if score > best_score:
+            best_score = score
+            best_node = child_node
+    return best_node
 
-def default(node, tie):
-    round_limit = 3
-    r = 0
-    while node.state.winner() == None:
-        # node = self.treePolicy(node)
-        node = node.randomExpand()
-        r += 1
-        if r > round_limit:
-            tie += 1
-            return node, 0
-    node.color = node.next_color()
-    reward = 0
-    if node.state.winner() == node.color:
-        reward = 1
+def selection(node):
+    current_node = node
+    # test if child is none
+    if current_node.possible_moves == None:
+        possible_children = current_node.get_moves()
+        current_node.possible_moves = possible_children
     else:
-        reward = -1
-    node.color = node.next_color()
-    return node, reward, tie
-
-def backup(node, reward, color):
-    while node.parent is not None:
-        node.visit_times += 1
-        if node.color == color:
-            # reward = 0.9 * reward
-            node.value -= reward
+        possible_children = current_node.possible_moves
+    
+    # while still all child node are explored
+    while (len(current_node.children) == len(possible_children)):
+        # get best child
+        best_child = uct(current_node)
+        current_node = best_child
+        if current_node.possible_moves == None:
+            possible_children = current_node.get_moves()
+            current_node.possible_moves = possible_children
         else:
-            # reward = 0.9 * reward
-            node.value += reward
+            possible_children = current_node.possible_moves
+            
+        # if not explored
+        if (len(possible_children) == 0):
+            return current_node, possible_children
+    
+    return current_node, possible_children
+
+def expansion(parent, possible_children):
+    # if leaf node
+    if len(possible_children) == 0:
+        return parent
+    # find the move
+    for move in possible_children:
+        move_found = False
+        # check if move explored
+        for child in parent.children: 
+            # may have problem...
+            if move.board.pieces == child.board.pieces:
+                move_found = True
+                break
+        # not found
+        if not move_found:
+            if move.possible_moves == None:
+                moves = move.get_moves()
+                move.possible_moves = moves
+            else:
+                moves = move.possible_moves
+            if (len(moves) == 0):
+                turn = parent.turn
+            else:
+                turn = parent.reverse_node()
+            move.turn = turn
+            parent.children.append(move)
+            return move
+    return None
+
+def simulation(node):
+    move = 0
+    while node.board.winner() is None:
+        # limit the loop
+        if move >= 20:
+            break
+        valid_moves = node.get_moves()
+        if valid_moves:
+            node = random.choice(valid_moves)
+        move += 1
+        
+    if node.board.board_score() > 0:
+        return True
+    else:
+        return False
+    
+def backpropagation(node, winner):
+    while node is not None:
+        node.playouts += 1
+        if node.turn and not winner:
+            node.wins += 1
+        if not node.turn and winner:
+            node.wins += 1
         node = node.parent
-    node.visit_times += 1
+        
+class mcts_agent():
+    def __init__(self, board, color):
+        self.root = mcts_node(color)
+        self.root.board = copy.deepcopy(board)
+        self.root.possible_moves = self.root.get_moves()
+        
+    def step(self, board, iterations):
+        self.root.board = copy.deepcopy(board)
+        self.root.possible_moves = self.root.get_moves()
+        self.root.children = []
+        
+        for _ in range(iterations):
+            current_node, possible_children = selection(self.root)
+            # print("currend possible_children: ", possible_children)
+            # print("currend_node children: ", current_node.children)
+            new_node = expansion(current_node, possible_children)
+            # print("node children: ", new_node.children)
+            white_win = simulation(new_node)
+            backpropagation(new_node, white_win)
+
+        # print("After back root children: ", self.root.children)
+
+        # find the most explored
+        max_playouts = 0
+        best_child = None
+        for child in self.root.children:
+            if child.playouts > max_playouts:
+                max_playouts = child.playouts
+                best_child = child
+        return best_child.board

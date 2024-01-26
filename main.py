@@ -6,7 +6,7 @@ from utils.draught_game import Game
 from algorithms.minimax import minimax, negamax, alpha_beta_pruning
 from algorithms.random import random_algorithm
 # from algorithms.MCTS import mcts_agent
-from algorithms.mcts_new import mcts_agent
+from algorithms.mcts import mcts_agent
 # from algorithms.reinforcement_learning import reinforcement_learning
 
 menu = None
