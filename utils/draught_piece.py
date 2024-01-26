@@ -26,3 +26,9 @@ class Piece:
         self.col = col
         self.x = SIZE * self.col + SIZE // 2
         self.y = SIZE * self.row + SIZE // 2
+    
+    def get_dist(self):
+        return 1 / (8 - self.row)
+
+    def get_color(self):
+        return self.color

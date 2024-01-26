@@ -253,3 +253,31 @@ class Board:
     def board_score(self):
         score = self.white_left + 2 * self.white_kings - self.black_left - 2 * self.black_kings
         return score
+
+    def distance(self):
+        #white
+        result = 0
+        for i in range(8):
+            for j in range(8):
+                if(self.pieces[i][j] != 0 and self.pieces[i][j].get_color() == WHITE):
+                    result += self.pieces[i][j].get_dist()
+        return result
+
+
+    def evaluate_dist(self,color):
+        # raise RuntimeError(self.pieces)
+        result = 0
+
+        if(self.white_left == 0):
+            return -10000
+        if(self.black_left == 0):   
+            return 10000
+
+
+        for i in range(8):
+            for j in range(8):
+                if(self.pieces[i][j] != 0 and self.pieces[i][j].get_color() == WHITE):
+                    result += self.pieces[i][j].get_dist()
+        
+        score = self.white_left - self.black_left + (self.white_kings * 2 - self.black_kings * 2)
+        return result + score

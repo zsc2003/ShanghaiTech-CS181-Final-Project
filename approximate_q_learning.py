@@ -16,7 +16,6 @@ algorithm = 1
 
 alpha = 0.5
 discount_factor = 0.9
-window = None
 
 def q_func(board:Board, board2:Board):
     # wHITE
@@ -373,8 +372,9 @@ def set_depth(value):
             depth = value_
 
 if __name__ == '__main__':
+    global window
     pygame.init()
-    win = pygame.display.set_mode((WIDTH,HEIGHT))
+    window = pygame.display.set_mode((WIDTH,HEIGHT))
     menu = pygame_menu.Menu('Welcome',
                             400,
                             400,
@@ -390,3 +390,7 @@ if __name__ == '__main__':
 
     train()
     print(" ============== training finish ============== ")
+    
+    print(" ============== start evaluate ============== ")
+    evaluate()
+    print(" ============== finished evaluate ============== ")

@@ -1,14 +1,18 @@
 import pygame
 import pygame_menu
-from config import *
-from draught import Game
+import sys
+from utils.config import *
+from utils.draught_game import Game
+from utils.draught_board import Board
+from algorithms.minimax import minimax
+from algorithms.algorithms import *
+
 import random
 import pickle
-from AI import *
+
 depth = 4
 ai_turn = BLACK
 algorithm = 1
-
 
 def select_algorithm(value, index):
     global algorithm
@@ -29,7 +33,6 @@ def set_depth(value):
             depth = value_ - 1
         else:
             depth = value_
-
 
 alpha = 0.4
 discount_factor = 0.8
@@ -155,8 +158,8 @@ def test():
     epochs_1 = 100
     # epsilon_1 = 0.3
     i_1 = 0
-    count_win_1 = 0
-    count_win_black_1 = 0
+    count_win = 0
+    count_win_black = 0
 
     while(i_1 < epochs_1):
         i_1 += 1
@@ -166,7 +169,7 @@ def test():
         
         game = Game(win,WHITE)
         is_run_1 = True
-        # count_step_1 = 0
+        count_step = 0
         count_1 = 0
         while is_run_1:
             count_1 +=1
@@ -319,20 +322,25 @@ def run_game():
         
         game.update()
 
-pygame.init()
-win = pygame.display.set_mode((WIDTH,HEIGHT))
-menu = pygame_menu.Menu('Welcome',
-                        400,
-                        400,
-                        theme=pygame_menu.themes.THEME_BLUE)
+if __name__ == '__main__':
+    pygame.init()
+    win = pygame.display.set_mode((WIDTH,HEIGHT))
+    menu = pygame_menu.Menu('Welcome',
+                            400,
+                            400,
+                            theme=pygame_menu.themes.THEME_BLUE)
 
-menu.add.selector('Algorithm :', [('minimax',1), ('a-b pruning',2)],
-                  onchange=select_algorithm)
-menu.add.selector('My Turn :', [('WHITE',1), ('BLACK',2)],
-                  onchange=select_turn)
-menu.add.text_input('Depth :', default= 4, onchange=set_depth)
-menu.add.button('Play', run_game)
-menu.add.button('Quit', pygame_menu.events.EXIT)
+    menu.add.selector('Algorithm :', [('minimax',1), ('a-b pruning',2)],
+                    onchange=select_algorithm)
+    menu.add.selector('My Turn :', [('WHITE',1), ('BLACK',2)],
+                    onchange=select_turn)
+    menu.add.text_input('Depth :', default= 4, onchange=set_depth)
+    menu.add.button('Play', run_game)
+    menu.add.button('Quit', pygame_menu.events.EXIT)
 
-train_qlearning()
-print(" ============== training finish ============== ")
+    train_qlearning()
+    print(" ============== training finish ============== ")
+
+    print(" ============== start evaluate ============== ")
+    test()
+    print(" ============== evaluate finish ============== ")
