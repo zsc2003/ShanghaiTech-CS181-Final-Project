@@ -1,10 +1,10 @@
 import pygame
 import pygame_menu
-from config import WIDTH , HEIGHT,SIZE,BLACK,WHITE,POSI_INFI,NEGA_INFI
+from config import *
 from draught import Game
 import random
 import pickle
-from AI import minimax,negamax,alpha_beta_pruning,get_all_moves
+from AI import *
 depth = 4
 ai_turn = BLACK
 algorithm = 1
